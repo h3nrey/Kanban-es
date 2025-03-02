@@ -1,4 +1,5 @@
 'use client'
+import Button from "@/components/Button";
 import { Task, TaskStatus } from "@/components/KanbanBoard";
 import TaskModal from "@/components/TaskModal";
 import { useParams, useRouter } from "next/navigation"
@@ -8,7 +9,6 @@ export default function TaskDetails() {
     const id = useParams().id;
     const [task, SetTask] = useState<Task | null>(null);
     const [modalOpen, setModalOpen] = useState(false);
-    const [newTask, setNewTask] = useState<Task | null>(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -20,19 +20,24 @@ export default function TaskDetails() {
         }
     }, [])
 
-    function editTask(editedTask: Task) {
+    function editTask(editedTask: { title: string, description: string | undefined }) {
         const tasksData = window.localStorage.getItem('tasks');
-        if (tasksData) {
+        if (tasksData && task) {
             const tasks = JSON.parse(tasksData);
-            const newTasks = tasks.map((task: Task) => {
-                if (task.id === Number(id)) {
-                    return editedTask;
-                }
-                return task;
+
+            const treatedTask = {
+                ...task,
+                title: editedTask.title != '' ? editedTask.title : task.title,
+                description: editedTask.description != '' ? editedTask.description : task.description
+            }
+
+            const newTasks = tasks.map((t: Task) => {
+                if (t.id === Number(id)) return treatedTask;
+                return t;
             })
+
             window.localStorage.setItem('tasks', JSON.stringify(newTasks));
-            // SetTask(newTasks.find((task: Task) => task.id === Number(id)));
-            SetTask(editedTask);
+            SetTask(treatedTask);
             setModalOpen(false);
         }
     }
@@ -63,26 +68,26 @@ export default function TaskDetails() {
     }
 
     return (
-        <div>
+        <div className="flex flex-col gap-8">
             <div className="flex justify-between items-center">
-                <h1>{task?.title}</h1>
+                <h1 className="font-bold text-4xl">{task?.title}</h1>
                 <div className="flex gap-4">
-                    <select name="" id="" onChange={(e) => updateTaskStatus(e.target.value as TaskStatus)}>
-                        <option value="pendente">Pendente</option>
-                        <option value="fazendo">Fazendo</option>
-                        <option value="feito">Feito</option>
+                    <select name="" id="" onChange={(e) => updateTaskStatus(e.target.value as TaskStatus)} className="rounded-sm outline-2 px-2 outline-gray w-3xs cursor-pointer">
+                        <option className="bg-gray cursor-pointer" value={TaskStatus.PENDING}>Pendente</option>
+                        <option className="bg-gray cursor-pointer" value={TaskStatus.DOING}>Realilzando</option>
+                        <option className="bg-gray cursor-pointer" value={TaskStatus.DONE}>Concluída</option>
                     </select>
-                    <button onClick={deleteTask} className="bg-red-500 rounded-sm">Deletar</button>
-                    <button onClick={() => setModalOpen(true)}>Editar</button>
+                    <Button color="#ec221f" textColor="#ec221f" clickCallback={deleteTask} >Deletar</Button>
+                    <Button color="#262626" clickCallback={() => setModalOpen(true)} >Editar</Button>
                 </div>
             </div>
-            <div>
+            <div className="flex flex-col gap-4">
                 <h2>Descrição</h2>
                 <p className="outline-2 outline-gray-500 p-2 rounded-md">{task?.description || 'Adicione uma descrição para sua tarefa...'}</p>
             </div>
 
             {modalOpen && task && (
-                <TaskModal task={task} saveTaskModal={editTask} closeModal={setModalOpen} />
+                <TaskModal sendTaskData={editTask} closeModal={setModalOpen} />
             )}
         </div>
     )
