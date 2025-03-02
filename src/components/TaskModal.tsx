@@ -1,20 +1,26 @@
 import { useState } from "react";
-import { Task } from "./KanbanBoard";
+import { Task, TaskStatus } from "./KanbanBoard";
 import Button from "./Button";
 
 interface TaskModalProps {
-    sendTaskData: ({ title, description }: { title: string, description?: string }) => void;
+    taskId?: number;
+    sendTaskData: (task: Task) => void;
+    canChangeStatus?: boolean;
     closeModal: (isOpen: boolean) => void;
 }
-export default function TaskModal({ sendTaskData, closeModal }: TaskModalProps) {
+export default function TaskModal({ taskId, sendTaskData, closeModal, canChangeStatus }: TaskModalProps) {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
+    const [status, setStatus] = useState(TaskStatus.PENDING);
 
     function saveTask() {
         sendTaskData({
-            title,
-            description
+            id: taskId ?? Math.floor(Math.random() * 1000),
+            title: title,
+            status: status,
+            description: description,
         })
+        closeModal(false);
     }
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
@@ -25,6 +31,15 @@ export default function TaskModal({ sendTaskData, closeModal }: TaskModalProps) 
                         className="p-2 outline-2 outline-gray-400 rounded-sm"
                         type="text"
                         placeholder="Título" onChange={(e) => setTitle(e.target.value)} />
+
+                    {canChangeStatus && (
+                        <select name="" id="" className="bg-gray p-2 rounded-sm" onChange={(e) => setStatus(e.target.value as TaskStatus)}>
+                            <option value={TaskStatus.PENDING} className="p-2">{TaskStatus.PENDING}</option>
+                            <option value={TaskStatus.DOING} className="p-2">{TaskStatus.DOING}</option>
+                            <option value={TaskStatus.DONE} className="p-2">{TaskStatus.DONE}</option>
+                        </select>
+                    )}
+
                     <textarea
                         name=""
                         id=""

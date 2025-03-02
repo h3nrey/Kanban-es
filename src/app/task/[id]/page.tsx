@@ -9,6 +9,7 @@ export default function TaskDetails() {
     const id = useParams().id;
     const [task, SetTask] = useState<Task | null>(null);
     const [modalOpen, setModalOpen] = useState(false);
+    const [currStatus, setCurrStatus] = useState(TaskStatus.PENDING);
     const router = useRouter();
 
     useEffect(() => {
@@ -16,11 +17,13 @@ export default function TaskDetails() {
         if (tasksData) {
             const tasks = JSON.parse(tasksData);
             const task = tasks.find((task: Task) => task.id === Number(id));
+            setCurrStatus(task.status);
             SetTask(task);
         }
     }, [])
 
-    function editTask(editedTask: { title: string, description: string | undefined }) {
+
+    function editTask(editedTask: Task) {
         const tasksData = window.localStorage.getItem('tasks');
         if (tasksData && task) {
             const tasks = JSON.parse(tasksData);
@@ -43,6 +46,7 @@ export default function TaskDetails() {
     }
 
     function updateTaskStatus(status: TaskStatus) {
+        setCurrStatus(status);
         const tasksData = window.localStorage.getItem('tasks');
         if (tasksData) {
             const tasks = JSON.parse(tasksData);
@@ -70,9 +74,13 @@ export default function TaskDetails() {
     return (
         <div className="flex flex-col gap-8">
             <div className="flex justify-between items-center">
-                <h1 className="font-bold text-4xl">{task?.title}</h1>
                 <div className="flex gap-4">
-                    <select name="" id="" onChange={(e) => updateTaskStatus(e.target.value as TaskStatus)} className="rounded-sm outline-2 px-2 outline-gray w-3xs cursor-pointer">
+                    <Button color="#262626" clickCallback={() => router.back()}>Voltar</Button>
+                    <h1 className="font-bold text-4xl">{task?.title}</h1>
+
+                </div>
+                <div className="flex gap-4">
+                    <select name="" id="" value={currStatus} onChange={(e) => updateTaskStatus(e.target.value as TaskStatus)} className="rounded-sm outline-2 px-2 outline-gray w-3xs cursor-pointer">
                         <option className="bg-gray cursor-pointer" value={TaskStatus.PENDING}>Pendente</option>
                         <option className="bg-gray cursor-pointer" value={TaskStatus.DOING}>Realilzando</option>
                         <option className="bg-gray cursor-pointer" value={TaskStatus.DONE}>Concluída</option>

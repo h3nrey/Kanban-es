@@ -24,19 +24,14 @@ export default function Home() {
     console.log("loading tasks");
   }
 
-  function addTask() {
+  function addTask(task: Task) {
     const tasks = window.localStorage.getItem('tasks');
 
-    const newTask = {
-      id: Math.floor(Math.random() * 1000),
-      title: 'Nova Atividade',
-      status: TaskStatus.PENDING
-    }
-
+    console.log(task);
     if (tasks) {
-      window.localStorage.setItem('tasks', JSON.stringify([...JSON.parse(tasks), newTask]));
+      window.localStorage.setItem('tasks', JSON.stringify([...JSON.parse(tasks), task]));
     } else {
-      window.localStorage.setItem('tasks', JSON.stringify([newTask]));
+      window.localStorage.setItem('tasks', JSON.stringify([task]));
     }
 
     loadTasks();
@@ -46,7 +41,7 @@ export default function Home() {
     setSearchText(text);
 
     if (text) {
-      setCurrTasks(tasks.filter(task => task.title.includes(text)));
+      setCurrTasks(tasks.filter(task => task.title.toLowerCase().includes(text.toLowerCase())));
     } else {
       setCurrTasks(tasks);
     }
@@ -56,11 +51,9 @@ export default function Home() {
       <div className="flex justify-between items-center">
         <h1 className="text-4xl">Kanban</h1>
         <div className="flex gap-4">
-          <span>Prioridade</span>
-
           <input type="text" placeholder="Buscar..." value={searchText} onChange={(e) => searchTasks(e.target.value)} className="outline-2 outline-gray p-2 rounded-sm" />
           <button
-            onClick={addTask}
+            onClick={() => setModalOpen(true)}
             className="p-2 bg-transparent rounded-sm outline-gray outline-2 hover:bg-gray cursor-pointer"
           >
             Nova Atividade
@@ -70,8 +63,8 @@ export default function Home() {
 
       <KanbanBoard tasks={currTasks} />
 
-      {modalOpen && task && (
-        <TaskModal task={task} saveTaskModal={editTask} closeModal={setModalOpen} />
+      {modalOpen && (
+        <TaskModal sendTaskData={addTask} canChangeStatus={true} closeModal={setModalOpen} />
       )}
     </div>
   );
