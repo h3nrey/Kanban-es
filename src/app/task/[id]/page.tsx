@@ -20,7 +20,7 @@ export default function TaskDetails() {
             setCurrStatus(task.status);
             SetTask(task);
         }
-    }, [])
+    }, [id])
 
 
     function editTask(editedTask: Task) {
