@@ -1,6 +1,4 @@
 'use client'
-import Link from "next/link";
-import { useEffect, useState } from "react";
 import KanbanColumn from "./KanbanColumn";
 
 export enum TaskStatus {

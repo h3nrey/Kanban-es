@@ -1,7 +1,6 @@
 'use client'
-import KanbanBoard, { Task, TaskStatus } from "@/components/KanbanBoard";
+import KanbanBoard, { Task } from "@/components/KanbanBoard";
 import TaskModal from "@/components/TaskModal";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 
 export default function Home() {
