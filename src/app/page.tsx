@@ -5,7 +5,6 @@ import { createTask, getTasks } from "@/services/task.service";
 import { useEffect, useState } from "react";
 
 export default function Home() {
-  const [tasks, setTasks] = useState<Task[]>([])
   const [currTasks, setCurrTasks] = useState<Task[]>([])
   const [searchText, setSearchText] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
@@ -20,7 +19,6 @@ export default function Home() {
     const tasksData = await getTasks();
     console.log(tasksData);
 
-    setTasks(tasksData);
     setCurrTasks(tasksData);
   }
 
@@ -40,7 +38,6 @@ export default function Home() {
       const tasksData = await getTasks(text);
       console.log(tasksData);
 
-      setTasks(tasksData);
       setCurrTasks(tasksData);
     }, 500);
   }
