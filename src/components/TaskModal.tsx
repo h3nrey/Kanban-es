@@ -15,7 +15,7 @@ export default function TaskModal({ taskId, sendTaskData, closeModal, canChangeS
 
     function saveTask() {
         sendTaskData({
-            id: taskId ?? Math.floor(Math.random() * 1000),
+            id: taskId ?? -1,
             title: title,
             status: status,
             description: description,

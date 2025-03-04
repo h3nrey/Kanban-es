@@ -17,7 +17,7 @@ export default function KanbanColumn({ tasks, cardColor, status, children }: Kan
                 {tasks.filter(task => task.status === status).map((task, i) => (
                     <Link href={"/task/" + task.id} key={i} className="bg-tomato rounded-md p-6" style={{ backgroundColor: cardColor }}>
                         <h3 className="text-wrap block break-words">{task.title}</h3>
-                        <p>{task.description}</p>
+                        <p className="break-words">{task.description}</p>
                     </Link>
                 ))}
             </div>

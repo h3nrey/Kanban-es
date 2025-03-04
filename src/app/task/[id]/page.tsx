@@ -2,6 +2,7 @@
 import Button from "@/components/Button";
 import { Task, TaskStatus } from "@/components/KanbanBoard";
 import TaskModal from "@/components/TaskModal";
+import { deleteTaskRecord, getTask, updateTaskRecord } from "@/services/task.service";
 import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState } from "react";
 
@@ -13,62 +14,32 @@ export default function TaskDetails() {
     const router = useRouter();
 
     useEffect(() => {
-        const tasksData = window.localStorage.getItem('tasks');
-        if (tasksData) {
-            const tasks = JSON.parse(tasksData);
-            const task = tasks.find((task: Task) => task.id === Number(id));
-            setCurrStatus(task.status);
+        const taskData = getTask(Number(id));
+
+        taskData.then((task) => {
             SetTask(task);
-        }
+            setCurrStatus(task.status);
+        })
     }, [id])
 
 
-    function editTask(editedTask: Task) {
-        const tasksData = window.localStorage.getItem('tasks');
-        if (tasksData && task) {
-            const tasks = JSON.parse(tasksData);
+    async function editTask(editedTask: Task) {
+        console.log(editedTask);
+        const taskData = await updateTaskRecord(editedTask);
 
-            const treatedTask = {
-                ...task,
-                title: editedTask.title != '' ? editedTask.title : task.title,
-                description: editedTask.description != '' ? editedTask.description : task.description
-            }
-
-            const newTasks = tasks.map((t: Task) => {
-                if (t.id === Number(id)) return treatedTask;
-                return t;
-            })
-
-            window.localStorage.setItem('tasks', JSON.stringify(newTasks));
-            SetTask(treatedTask);
-            setModalOpen(false);
-        }
+        SetTask(taskData);
+        setModalOpen(false);
     }
 
-    function updateTaskStatus(status: TaskStatus) {
+    async function updateTaskStatus(status: TaskStatus) {
+        if (!task) return;
         setCurrStatus(status);
-        const tasksData = window.localStorage.getItem('tasks');
-        if (tasksData) {
-            const tasks = JSON.parse(tasksData);
-            const newTasks = tasks.map((task: Task) => {
-                if (task.id === Number(id)) {
-                    return { ...task, status }
-                }
-                return task;
-            })
-            window.localStorage.setItem('tasks', JSON.stringify(newTasks));
-            SetTask(newTasks.find((task: Task) => task.id === Number(id)));
-        }
+        await updateTaskRecord({ ...task, status });
     }
 
-    function deleteTask() {
-        const tasksData = window.localStorage.getItem('tasks');
-        if (tasksData) {
-            const tasks = JSON.parse(tasksData);
-            const newTasks = tasks.filter((task: Task) => task.id !== Number(id));
-            window.localStorage.setItem('tasks', JSON.stringify(newTasks));
-            router.replace("/");
-        }
+    async function deleteTask() {
+        await deleteTaskRecord(Number(id));
+        router.replace("/");
     }
 
     return (
@@ -95,7 +66,7 @@ export default function TaskDetails() {
             </div>
 
             {modalOpen && task && (
-                <TaskModal sendTaskData={editTask} closeModal={setModalOpen} />
+                <TaskModal taskId={Number(id)} sendTaskData={editTask} closeModal={setModalOpen} />
             )}
         </div>
     )

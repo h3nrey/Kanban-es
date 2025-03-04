@@ -1,6 +1,7 @@
 'use client'
 import KanbanBoard, { Task } from "@/components/KanbanBoard";
 import TaskModal from "@/components/TaskModal";
+import { createTask, getTasks } from "@/services/task.service";
 import { useEffect, useState } from "react";
 
 export default function Home() {
@@ -9,41 +10,39 @@ export default function Home() {
   const [searchText, setSearchText] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
 
+  let debounceTimeout: NodeJS.Timeout | null = null;
+
   useEffect(() => {
     loadTasks();
   }, [])
 
-  function loadTasks() {
-    const tasksData = window.localStorage.getItem('tasks');
-    if (tasksData) {
-      const parsedTasks = JSON.parse(tasksData);
-      setTasks(parsedTasks);
-      setCurrTasks(parsedTasks);
-    }
-    console.log("loading tasks");
+  async function loadTasks() {
+    const tasksData = await getTasks();
+    console.log(tasksData);
+
+    setTasks(tasksData);
+    setCurrTasks(tasksData);
   }
 
-  function addTask(task: Task) {
-    const tasks = window.localStorage.getItem('tasks');
-
-    console.log(task);
-    if (tasks) {
-      window.localStorage.setItem('tasks', JSON.stringify([...JSON.parse(tasks), task]));
-    } else {
-      window.localStorage.setItem('tasks', JSON.stringify([task]));
-    }
-
+  async function addTask(task: Task) {
+    await createTask(task);
     loadTasks();
   }
 
-  function searchTasks(text: string) {
+  async function searchTasks(text: string) {
     setSearchText(text);
 
-    if (text) {
-      setCurrTasks(tasks.filter(task => task.title.toLowerCase().includes(text.toLowerCase())));
-    } else {
-      setCurrTasks(tasks);
+    if (debounceTimeout) {
+      clearTimeout(debounceTimeout);
     }
+
+    debounceTimeout = setTimeout(async () => {
+      const tasksData = await getTasks(text);
+      console.log(tasksData);
+
+      setTasks(tasksData);
+      setCurrTasks(tasksData);
+    }, 500);
   }
   return (
     <div className="flex flex-col gap-4">
