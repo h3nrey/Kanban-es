@@ -1,7 +1,7 @@
 import { Task } from "@/components/KanbanBoard";
 import axios from "axios";
 
-const baseUrl = "http://localhost:5000/api";
+const baseUrl = "http://54.210.97.220:5000/api";
 
 export async function createTask(task: Task) {
     const newTask = await axios.post(`${baseUrl}/tarefas`, task);
